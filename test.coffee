@@ -1,4 +1,3 @@
-
 options =
     highlight: (code, lang) -> hljs.highlight(lang, code).value
     gfm: true
@@ -7,9 +6,13 @@ options =
 
 marked.setOptions options
 
+render = () ->
+    $("#output").html marked $("#input").val()
+    return
+
 init = () ->
-    input = "``` python\ndef lol():\n\treturn False;\n```"
-    output = marked input
-    $("#output").append output
+    $("#input").keypress render  
+    render()
+    return
 
 $(document).ready init
