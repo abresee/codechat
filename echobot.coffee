@@ -3,7 +3,7 @@ BOSH_SERVICE = 'http://localhost/http-bind'
 connection = null
 
 log = (msg) ->
-    $('#log').append('<div></div>').append(document.createTextNode(msg))
+    $('#log').append "<div>#{msg}</div>"
 
 onConnect = (status) ->
     if status is Strophe.Status.CONNECTION
@@ -23,7 +23,7 @@ onConnect = (status) ->
     else if status is Strophe.Status.CONNECTED
         log 'Strophe is connected.'
         log "ECHOBOT: Send a message to #{connection.jid} to talk to me."
-        connection.addHandler(onMessage, null, 'message', null, null, null)
+        connection.addHandler onMessage, null, 'message', null, null, null 
         connection.send $pres().tree()
 
 onMessage = (msg) ->
@@ -34,22 +34,31 @@ onMessage = (msg) ->
 
     if type is 'chat' and elems.length > 0
         body = elems[0]
-        message = Strophe.getText body
-        log "ECHOBOT: I got a message from #{from}: #{message}"
+        hey = Strophe.getText body
+        ho = "Na Nah Hey Hey, #{hey}, ho, ho #{hey}"
+
+        log "ECHOBOT: I got a message from #{from}: #{hey}"
+
         reply = $msg(
             to: from
             from: to
             type: 'chat'
-        ).cnode Strophe.copyElement body 
+        ).c 'body', null, ho
         connection.send reply.tree()
-        log "ECHOBOT: I sent #{from}: #{message}"
+
+        log "ECHOBOT: I sent #{from}: #{ho}"
+
     true
 
 $ = jQuery
 
 $(document).ready ->
     connection = new Strophe.Connection BOSH_SERVICE
+    
+    #connection.rawInput = (data) -> log "RECV: #{data}"
+    #connection.rawOutput = (data) -> log "SEND: #{data}"
     #Strophe.log = (level,msg) -> log "LOG: #{msg}"
+
     $('#connect').bind 'click', -> 
         button = $('#connect').get 0
         if button.value is 'connect'
@@ -59,5 +68,5 @@ $(document).ready ->
             connection.connect jid, pass, onConnect
         else
             button.value = 'connect'
-            connect.disconnect()
+            connection.disconnect()
 
